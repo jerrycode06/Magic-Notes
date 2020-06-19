@@ -3,15 +3,22 @@ showNotes();
 //If User add a note add it to a local storage
 let addBtn = document.getElementById("addBtn");
 addBtn.addEventListener("click", function (e) {
+  let addTitle = document.getElementById("addTitle");
   let addTxt = document.getElementById("addTxt");
+  let title = localStorage.getItem("title");
   let notes = localStorage.getItem("notes");
-  if (notes == null) {
+  if (notes == null || title == null) {
+    titleObj = [];
     notesObj = [];
   } else {
+    titleObj = JSON.parse(title);
     notesObj = JSON.parse(notes);
   }
+  titleObj.push(addTitle.value);
   notesObj.push(addTxt.value);
+  localStorage.setItem("title", JSON.stringify(titleObj));
   localStorage.setItem("notes", JSON.stringify(notesObj));
+  addTitle.value = "";
   addTxt.value = "";
   //   console.log(notesObj);
   showNotes();
@@ -19,10 +26,15 @@ addBtn.addEventListener("click", function (e) {
 
 //function to show elements from localStorage
 function showNotes() {
+  let addTitle = document.getElementById("addTitle");
+  let addTxt = document.getElementById("addTxt");
+  let title = localStorage.getItem("title");
   let notes = localStorage.getItem("notes");
-  if (notes == null) {
+  if (notes == null || title == null) {
+    titleObj = [];
     notesObj = [];
   } else {
+    titleObj = JSON.parse(title);
     notesObj = JSON.parse(notes);
   }
   let html = "";
@@ -30,7 +42,7 @@ function showNotes() {
     html += `
             <div class="noteCard my-2 mx-2 card" style="width: 18rem;">
           <div class="card-body">
-            <h5 class="card-title">Note ${index + 1}</h5>
+            <h5 class="card-title">${titleObj[index]}</h5>
             <p class="card-text">
              ${element}
             </p>
@@ -50,14 +62,18 @@ function showNotes() {
 //function to delete a note
 function deleteNote(index) {
   //   console.log("I am deleting this note");
+  let title = localStorage.getItem("title");
   let notes = localStorage.getItem("notes");
-  if (notes == null) {
+  if (notes == null || title == null) {
+    titleObj = [];
     notesObj = [];
   } else {
+    titleObj = JSON.parse(title);
     notesObj = JSON.parse(notes);
   }
-
+  titleObj.splice(index, 1);
   notesObj.splice(index, 1);
+  localStorage.setItem("title", JSON.stringify(titleObj));
   localStorage.setItem("notes", JSON.stringify(notesObj));
   showNotes();
 }
@@ -70,9 +86,10 @@ search.addEventListener("input", function () {
   //   console.log(inputVal);
   let noteCards = document.getElementsByClassName("noteCard");
   Array.from(noteCards).forEach(function (element) {
+    let titleName = element.getElementsByTagName("h5")[0].innerText;
     let cardTxt = element.getElementsByTagName("p")[0].innerText;
     // console.log(cardTxt);
-    if (cardTxt.includes(inputVal)) {
+    if (cardTxt.includes(inputVal) || titleName.includes(inputVal)) {
       element.style.display = "block";
     } else {
       element.style.display = "none";
